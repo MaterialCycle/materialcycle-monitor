@@ -1,3 +1,4 @@
+// js/db.js
 import { openDB } from 'https://cdn.jsdelivr.net/npm/idb@7/+esm';
 
 const DB_NAME = 'MaterialCycleDB';
@@ -26,6 +27,16 @@ export async function getAllTowers() {
   return db.getAll(TOWER_STORE);
 }
 
+export async function getTower(id) {
+  const db = await dbPromise;
+  return db.get(TOWER_STORE, id);
+}
+
+export async function deleteTower(id) {
+  const db = await dbPromise;
+  return db.delete(TOWER_STORE, id);
+}
+
 export async function addLog(log) {
   const db = await dbPromise;
   return db.put(LOG_STORE, log);
@@ -34,6 +45,16 @@ export async function addLog(log) {
 export async function getAllLogs() {
   const db = await dbPromise;
   return db.getAll(LOG_STORE);
+}
+
+export async function getLog(id) {
+  const db = await dbPromise;
+  return db.get(LOG_STORE, id);
+}
+
+export async function deleteLog(id) {
+  const db = await dbPromise;
+  return db.delete(LOG_STORE, id);
 }
 
 export async function clearAllData() {
