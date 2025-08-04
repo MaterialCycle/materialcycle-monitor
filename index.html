@@ -167,9 +167,9 @@
   </section>
 
 <script type="module">
-  import { saveTower, getAllTowers } from './js/db.js';
-  import { addTower, fetchTowers } from './js/towers.js';
-  import { addLog } from './js/logs.js';
+  import { addTower, getAllTowers } from './js/db.js';
+  import { addTowerRecord, fetchTowers } from './js/towers.js';
+  import { addLogRecord } from './js/logs.js';
 
   // Tower Setup
 
@@ -216,7 +216,7 @@
     }
 
     try {
-      await addTower(tower);
+      await addTowerRecord(tower);
       alert('Tower saved!');
       document.getElementById('towerName').value = '';
       document.getElementById('towerLocation').value = '';
@@ -324,7 +324,7 @@
         timestamp: new Date().toISOString()
       };
 
-      await addLog(log);
+      await addLogRecord(log);
       alert('Daily log saved!');
 
       // Clear inputs except tower selector
@@ -351,7 +351,6 @@
     await refreshTowerList();
     await refreshTowerDropdown();
   })();
-
 </script>
 </body>
 </html>
