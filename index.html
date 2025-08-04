@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MaterialCycle Monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 p-4">
+  <h1 class="text-2xl font-bold mb-4">🌱 MaterialCycle Monitor</h1>
+
+  <!-- Tower Setup -->
+  <section class="mb-8">
+    <h2 class="text-xl font-semibold mb-2">Tower Setup</h2>
+    <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+      <input id="towerName" type="text" placeholder="Tower Name" class="p-2 border rounded"/>
+      <select id="towerType" class="p-2 border rounded">
+        <option value="plant">Plant</option>
+        <option value="distillation">Distillation</option>
+        <option value="hybrid">Hybrid</option>
+      </select>
+      <input id="towerLocation" type="text" placeholder="Location" class="p-2 border rounded"/>
+      <select id="towerWaterSource" class="p-2 border rounded">
+        <option value="rainwater">Rainwater</option>
+        <option value="greywater">Greywater</option>
+        <option value="tap">Tap</option>
+      </select>
+      <button onclick="saveTower()" class="p-2 bg-green-600 text-white rounded col-span-1 md:col-span-2">Save Tower</button>
+    </div>
+    <ul id="towerList" class="mt-4 list-disc list-inside text-sm text-gray-700"></ul>
+  </section>
+
+  <!-- Daily Log -->
+  <section>
+    <h2 class="text-xl font-semibold mb-2">Daily Log</h2>
+    <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+      <select id="logTowerSelect" class="p-2 border rounded">
+        <option value="">Select Tower</option>
+      </select>
+      <input id="logDate" type="date" class="p-2 border rounded"/>
+      <input id="sunlightStart" type="time" class="p-2 border rounded" placeholder="Sunlight Start"/>
+      <input id="sunlightEnd" type="time" class="p-2 border rounded" placeholder="Sunlight End"/>
+      <select id="sunlightExposure" class="p-2 border rounded">
+        <option value="Full Sun">Full Sun</option>
+        <option value="Partial Sun">Partial Sun</option>
+        <option value="Reflected Light">Reflected Light</option>
+        <option value="Artificial Light">Artificial Light</option>
+        <option value="No Sun">No Sun</option>
+      </select>
+      <button onclick="saveLog()" class="p-2 bg-blue-600 text-white rounded col-span-1 md:col-span-2">Save Log</button>
+    </div>
+  </section>
+
+  <script>
+    const dbPromise = idb.openDB("MaterialCycleDB", 1, {
+      upgrade(db) {
+        db.createObjectStore("towers", { keyPath: "id" });
+        db.createObjectStore("logs", { keyPath: "id" });
+      }
+    });
+
+    async function saveTower() {
+      const db = await dbPromise;
+      const tower = {
+        id: "tower-" + Date.now(),
+        name: document.getElementById("towerName").value,
+        type: document.getElementById("towerType").value,
+        location: document.getElementById("towerLocation").value,
+        waterSource: document.getElementById("towerWaterSource").value,
+        createdAt: new Date().toISOString()
+      };
+      await db.put("towers", tower);
+      document.querySelectorAll('#towerName, #towerLocation').forEach(input => input.value = "");
+      refreshTowerList();
+      refreshTowerDropdown();
+    }
+
+    async function refreshTowerList() {
+      const db = await dbPromise;
+      const allTowers = await db.getAll("towers");
+      const list = document.getElementById("towerList");
+      list.innerHTML = "";
+      allTowers.forEach(t => {
+        const li = document.createElement("li");
+        li.textContent = `${t.name} (${t.type}) - ${t.location}`;
+        list.appendChild(li);
+      });
+    }
+
+    async function refreshTowerDropdown() {
+      const db = await dbPromise;
+      const towers = await db.getAll("towers");
+      const dropdown = document.getElementById("logTowerSelect");
+      dropdown.innerHTML = '<option value="">Select Tower</option>';
+      towers.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.id;
+        opt.textContent = t.name || t.location;
+        dropdown.appendChild(opt);
+      });
+    }
+
+    async function saveLog() {
+      const db = await dbPromise;
+      const start = document.getElementById("sunlightStart").value;
+      const end = document.getElementById("sunlightEnd").value;
+      let hours = 0;
+      if (start && end) {
+        const startTime = new Date(`1970-01-01T${start}`);
+        const endTime = new Date(`1970-01-01T${end}`);
+        hours = (endTime - startTime) / 3600000;
+      }
+
+      const log = {
+        id: "log-" + Date.now(),
+        towerId: document.getElementById("logTowerSelect").value,
+        date: document.getElementById("logDate").value,
+        sunlight: {
+          startTime: start,
+          endTime: end,
+          hours: parseFloat(hours.toFixed(2)),
+          exposureType: document.getElementById("sunlightExposure").value,
+          autoEstimate: false
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      await db.put("logs", log);
+      alert("Log saved ✅");
+      document.getElementById("logDate").value = "";
+      document.getElementById("sunlightStart").value = "";
+      document.getElementById("sunlightEnd").value = "";
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      refreshTowerList();
+      refreshTowerDropdown();
+    });
+  </script>
+</body>
+</html>
