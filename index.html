@@ -3,892 +3,452 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MaterialCycle Monitor</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>MaterialCycle Monitor - Full Skeleton</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 1rem; }
+    nav button { margin-right: 0.5rem; padding: 0.4rem 0.8rem; }
+    section { display: none; margin-top: 1rem; }
+    section.active { display: block; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.4rem; text-align: left; }
+    th { background-color: #eee; }
+    .btn-small { padding: 0.2rem 0.5rem; margin-right: 0.3rem; cursor: pointer; }
+  </style>
 </head>
-<body class="bg-gray-100 p-6 font-sans">
-  <h1 class="text-4xl font-bold mb-8">MaterialCycle Monitor</h1>
+<body>
 
-  <!-- Nav Buttons -->
-  <div class="mb-6 space-x-4">
-    <button id="showTowerSetup" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Tower Setup</button>
-    <button id="showDailyLog" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Daily Log Entry</button>
-    <button id="showLogHistory" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Log History</button>
-  </div>
+  <h1>MaterialCycle Monitor</h1>
+
+  <nav>
+    <button id="navTowerSetup">Tower Setup</button>
+    <button id="navDailyLog">Daily Log</button>
+    <button id="navLogHistory">Log History</button>
+  </nav>
 
   <!-- Tower Setup Section -->
-  <section id="towerSetupSection" class="mb-12">
-    <h2 class="text-2xl font-semibold mb-4">Tower Setup</h2>
-    <form id="towerForm" class="space-y-4 max-w-xl bg-white p-6 rounded shadow">
+  <section id="towerSetupSection" class="active">
+    <h2>Tower Setup</h2>
+    <form id="towerSetupForm">
       <label>
         Tower Name:
-        <input type="text" id="towerName" placeholder="Optional" class="border p-2 w-full" />
-      </label>
+        <input type="text" id="towerName" required />
+      </label><br /><br />
       <label>
         Tower Type:
-        <select id="towerType" class="border p-2 w-full" required>
-          <option value="">Select type</option>
+        <select id="towerType" required>
           <option value="plant">Plant</option>
           <option value="distillation">Distillation</option>
           <option value="hybrid">Hybrid</option>
         </select>
-      </label>
+      </label><br /><br />
       <label>
         Location:
-        <input type="text" id="towerLocation" placeholder="e.g. Backyard near fence" class="border p-2 w-full" />
-      </label>
+        <input type="text" id="towerLocation" />
+      </label><br /><br />
       <label>
-        Latitude:
-        <input type="number" id="towerLat" step="0.000001" placeholder="e.g. -33.923" class="border p-2 w-full" />
-      </label>
+        GPS Latitude:
+        <input type="number" id="towerLat" step="any" />
+      </label><br /><br />
       <label>
-        Longitude:
-        <input type="number" id="towerLng" step="0.000001" placeholder="e.g. 18.417" class="border p-2 w-full" />
-      </label>
+        GPS Longitude:
+        <input type="number" id="towerLng" step="any" />
+      </label><br /><br />
       <label>
         Default Water Source:
-        <select id="towerWaterSource" class="border p-2 w-full">
+        <select id="towerWaterSource">
           <option value="rainwater">Rainwater</option>
           <option value="tap">Tap</option>
-          <option value="greywater">Greywater</option>
-          <option value="other">Other</option>
+          <option value="well">Well</option>
         </select>
-      </label>
-
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Tower</button>
+      </label><br /><br />
+      <button type="submit">Save Tower</button>
     </form>
 
-    <h3 class="mt-8 text-xl font-semibold">Saved Towers</h3>
-    <ul id="towerList" class="mt-2 space-y-2 max-w-xl"></ul>
+    <h3>Saved Towers</h3>
+    <ul id="towerList"></ul>
   </section>
 
   <!-- Daily Log Section -->
-  <section id="dailyLogSection" class="hidden">
-    <h2 class="text-2xl font-semibold mb-4">Daily Log Entry</h2>
-    <form id="dailyLogForm" class="space-y-4 max-w-3xl bg-white p-6 rounded shadow overflow-auto max-h-[80vh]">
-      <!-- Tower select -->
+  <section id="dailyLogSection">
+    <h2>Daily Log Entry</h2>
+    <form id="dailyLogForm">
       <label>
         Tower:
-        <select id="towerSelect" required class="border p-2 w-full"></select>
-      </label>
-
+        <select id="logTowerSelect" required>
+          <option value="">-- Select Tower --</option>
+        </select>
+      </label><br /><br />
       <label>
         Date:
-        <input type="date" id="logDate" required class="border p-2 w-full" />
-      </label>
-
-      <!-- Photos Upload -->
-      <div>
-        <label>Before Photo:</label>
-        <input type="file" id="photoBefore" accept="image/*" />
-        <img id="previewBefore" class="mt-2 max-h-40" />
-      </div>
-
-      <div>
-        <label>After Photo:</label>
-        <input type="file" id="photoAfter" accept="image/*" />
-        <img id="previewAfter" class="mt-2 max-h-40" />
-      </div>
-
-      <div>
-        <label>Sunlight Start Photo:</label>
-        <input type="file" id="photoSunlightStart" accept="image/*" />
-        <img id="previewSunlightStart" class="mt-2 max-h-40" />
-      </div>
-
-      <div>
-        <label>Sunlight End Photo:</label>
-        <input type="file" id="photoSunlightEnd" accept="image/*" />
-        <img id="previewSunlightEnd" class="mt-2 max-h-40" />
-      </div>
-
+        <input type="date" id="logDate" required />
+      </label><br /><br />
       <label>
-        Sunlight Start Time:
-        <input type="time" id="sunlightStartTime" />
-      </label>
-
+        Sunlight Hours:
+        <input type="number" id="sunlightHours" step="0.01" min="0" />
+      </label><br /><br />
       <label>
-        Sunlight End Time:
-        <input type="time" id="sunlightEndTime" />
-      </label>
-
+        Water Added (L):
+        <input type="number" id="waterAdded" step="0.01" min="0" />
+      </label><br /><br />
       <label>
-        Calculated Sunlight Hours:
-        <input type="number" id="sunlightHours" step="0.01" readonly class="bg-gray-200" />
-      </label>
-
-      <label>
-        Manual Override Sunlight Hours:
-        <input type="number" id="sunlightHoursManual" step="0.01" min="0" max="24" />
-      </label>
-
-      <label>
-        Exposure Type:
-        <select id="exposureType" class="border p-2 w-full">
-          <option>Full Sun</option>
-          <option>Partial Sun</option>
-          <option>Reflected</option>
-          <option>Artificial</option>
-          <option>No Sun</option>
-        </select>
-      </label>
-
-      <!-- Water Section -->
-      <fieldset class="border p-3">
-        <legend class="font-semibold">Water</legend>
-        <label>
-          Water Level (L):
-          <input type="number" id="waterLevel" step="0.1" min="0" />
-        </label>
-        <label>
-          Water Added Today (L):
-          <input type="number" id="waterAdded" step="0.1" min="0" />
-        </label>
-        <label>
-          Water Source:
-          <select id="waterSource" class="border p-2 w-full">
-            <option>Rainwater</option>
-            <option>Tap</option>
-            <option>Greywater</option>
-            <option>Other</option>
-          </select>
-        </label>
-        <label>
-          Overflow:
-          <input type="text" id="overflow" />
-        </label>
-        <label>
-          Rainfall Observed:
-          <select id="rainfallObserved" class="border p-2 w-full">
-            <option>Yes</option>
-            <option>No</option>
-          </select>
-        </label>
-        <label>
-          Notes:
-          <textarea id="waterNotes" rows="2" class="border p-2 w-full"></textarea>
-        </label>
-      </fieldset>
-
-      <!-- Distillation Section -->
-      <fieldset class="border p-3">
-        <legend class="font-semibold">Distillation</legend>
-        <label>
-          Raw Input Type:
-          <input type="text" id="rawInputType" />
-        </label>
-        <label>
-          Input Volume (L):
-          <input type="number" id="inputVolume" step="0.1" min="0" />
-        </label>
-        <label>
-          Distilled Volume (L):
-          <input type="number" id="distilledVolume" step="0.1" min="0" />
-        </label>
-      </fieldset>
-
-      <!-- Biomass Section -->
-      <fieldset class="border p-3">
-        <legend class="font-semibold">Biomass</legend>
-        <label>
-          Harvested (g):
-          <input type="number" id="harvested" step="1" min="0" />
-        </label>
-        <label>
-          Type:
-          <input type="text" id="biomassType" />
-        </label>
-        <label>
-          Waste Removed (g):
-          <input type="number" id="wasteRemoved" step="1" min="0" />
-        </label>
-        <label>
-          New Additions (comma separated):
-          <input type="text" id="newAdditions" placeholder="e.g. compost, leaves" />
-        </label>
-      </fieldset>
-
-      <!-- Maintenance Section -->
-      <fieldset class="border p-3">
-        <legend class="font-semibold">Maintenance</legend>
-        <label>
-          Issue:
-          <input type="text" id="maintenanceIssue" />
-        </label>
-        <label>
-          Action Taken:
-          <input type="text" id="maintenanceAction" />
-        </label>
-        <label>
-          Next Reminder Date:
-          <input type="date" id="nextReminder" />
-        </label>
-      </fieldset>
-
-      <!-- Aquatic Section -->
-      <fieldset class="border p-3">
-        <legend class="font-semibold">Aquatic Life</legend>
-        <label>
-          Fish Status:
-          <input type="text" id="fishStatus" />
-        </label>
-        <label>
-          Water Clarity:
-          <input type="text" id="waterClarity" />
-        </label>
-        <label>
-          Odor:
-          <input type="text" id="odor" />
-        </label>
-      </fieldset>
-
-      <!-- Weather Section -->
-      <fieldset class="border p-3">
-        <legend class="font-semibold">Weather</legend>
-        <label>
-          Summary:
-          <input type="text" id="weatherSummary" />
-        </label>
-        <label>
-          Temperature (°C):
-          <input type="number" id="weatherTemp" step="0.1" />
-        </label>
-        <label>
-          Rainfall (mm):
-          <input type="number" id="weatherRainfall" step="0.1" />
-        </label>
-        <label>
-          Pulled From Location:
-          <select id="weatherPulled" class="border p-2 w-full">
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
-        </label>
-      </fieldset>
-
-      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Log</button>
+        Biomass Harvested (g):
+        <input type="number" id="biomassHarvested" step="0.1" min="0" />
+      </label><br /><br />
+      <button type="submit">Save Daily Log</button>
     </form>
   </section>
 
   <!-- Log History Section -->
-  <section id="logHistorySection" class="hidden max-w-5xl">
-    <h2 class="text-2xl font-semibold mb-4">Log History</h2>
+  <section id="logHistorySection">
+    <h2>Log History</h2>
 
-    <div class="mb-4 flex flex-wrap gap-4">
-      <label>
-        Filter by Tower:
-        <select id="filterTower" class="border p-2">
-          <option value="">All Towers</option>
-        </select>
-      </label>
-      <label>
-        From:
-        <input type="date" id="filterFromDate" class="border p-2" />
-      </label>
-      <label>
-        To:
-        <input type="date" id="filterToDate" class="border p-2" />
-      </label>
-      <button id="applyFilters" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Apply Filters</button>
-      <button id="clearFilters" class="bg-gray-400 text-black px-4 py-2 rounded hover:bg-gray-500">Clear Filters</button>
-    </div>
+    <label>
+      Filter by Tower:
+      <select id="filterTowerSelect">
+        <option value="">All Towers</option>
+      </select>
+    </label>
+    <label>
+      From:
+      <input type="date" id="filterFromDate" />
+    </label>
+    <label>
+      To:
+      <input type="date" id="filterToDate" />
+    </label>
+    <button id="applyFiltersBtn">Apply Filters</button>
 
-    <table class="min-w-full bg-white rounded shadow overflow-hidden">
-      <thead class="bg-purple-600 text-white">
+    <table>
+      <thead>
         <tr>
-          <th class="px-4 py-2">Date</th>
-          <th class="px-4 py-2">Tower</th>
-          <th class="px-4 py-2">Sunlight Hours</th>
-          <th class="px-4 py-2">Water Added (L)</th>
-          <th class="px-4 py-2">Harvested (g)</th>
-          <th class="px-4 py-2">Actions</th>
+          <th>Date</th>
+          <th>Tower</th>
+          <th>Sunlight Hours</th>
+          <th>Water Added</th>
+          <th>Biomass Harvested</th>
+          <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="logTableBody" class="text-gray-800"></tbody>
+      <tbody id="logTableBody">
+        <!-- Logs will be inserted here -->
+      </tbody>
     </table>
   </section>
 
-  <script type="module">
-    // IndexedDB helper - simplified for demo
-    const DB_NAME = 'MaterialCycleDB';
-    const DB_VERSION = 1;
-    let db;
-
-    function openDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onupgradeneeded = e => {
-          db = e.target.result;
-          if (!db.objectStoreNames.contains('towers')) {
-            db.createObjectStore('towers', { keyPath: 'id' });
-          }
-          if (!db.objectStoreNames.contains('logs')) {
-            db.createObjectStore('logs', { keyPath: 'id' });
-          }
-        };
-        request.onsuccess = e => {
-          db = e.target.result;
-          resolve(db);
-        };
-        request.onerror = e => reject(e.target.error);
-      });
-    }
-
-    async function addTower(tower) {
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction('towers', 'readwrite');
-        const store = tx.objectStore('towers');
-        store.put(tower);
-        tx.oncomplete = () => resolve();
-        tx.onerror = e => reject(e.target.error);
-      });
-    }
-
-    async function getAllTowers() {
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction('towers', 'readonly');
-        const store = tx.objectStore('towers');
-        const request = store.getAll();
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = e => reject(e.target.error);
-      });
-    }
-
-    async function addLog(log) {
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction('logs', 'readwrite');
-        const store = tx.objectStore('logs');
-        store.put(log);
-        tx.oncomplete = () => resolve();
-        tx.onerror = e => reject(e.target.error);
-      });
-    }
-
-    async function getAllLogs() {
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction('logs', 'readonly');
-        const store = tx.objectStore('logs');
-        const request = store.getAll();
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = e => reject(e.target.error);
-      });
-    }
-
-    async function deleteLog(id) {
-      const db = await openDB();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction('logs', 'readwrite');
-        const store = tx.objectStore('logs');
-        store.delete(id);
-        tx.oncomplete = () => resolve();
-        tx.onerror = e => reject(e.target.error);
-      });
-    }
-
-    // UI Elements
-    const towerForm = document.getElementById('towerForm');
-    const towerList = document.getElementById('towerList');
-    const dailyLogForm = document.getElementById('dailyLogForm');
-    const towerSelect = document.getElementById('towerSelect');
-    const sunlightStartTime = document.getElementById('sunlightStartTime');
-    const sunlightEndTime = document.getElementById('sunlightEndTime');
-    const sunlightHours = document.getElementById('sunlightHours');
-    const sunlightHoursManual = document.getElementById('sunlightHoursManual');
-
-    const showTowerSetupBtn = document.getElementById('showTowerSetup');
-    const showDailyLogBtn = document.getElementById('showDailyLog');
-    const showLogHistoryBtn = document.getElementById('showLogHistory');
-
-    const towerSetupSection = document.getElementById('towerSetupSection');
-    const dailyLogSection = document.getElementById('dailyLogSection');
-    const logHistorySection = document.getElementById('logHistorySection');
-
-    const filterTower = document.getElementById('filterTower');
-    const filterFromDate = document.getElementById('filterFromDate');
-    const filterToDate = document.getElementById('filterToDate');
-    const applyFiltersBtn = document.getElementById('applyFilters');
-    const clearFiltersBtn = document.getElementById('clearFilters');
-    const logTableBody = document.getElementById('logTableBody');
-
-    // Navigation
-    showTowerSetupBtn.addEventListener('click', () => {
-      towerSetupSection.classList.remove('hidden');
-      dailyLogSection.classList.add('hidden');
-      logHistorySection.classList.add('hidden');
+<script>
+  // Utility: Show only one section at a time
+  function showSection(id) {
+    ['towerSetupSection','dailyLogSection','logHistorySection'].forEach(secId => {
+      document.getElementById(secId).classList.toggle('active', secId === id);
     });
-    showDailyLogBtn.addEventListener('click', async () => {
-      dailyLogSection.classList.remove('hidden');
-      towerSetupSection.classList.add('hidden');
-      logHistorySection.classList.add('hidden');
-      await populateTowerDropdown();
-      resetDailyLogForm();
-    });
-    showLogHistoryBtn.addEventListener('click', async () => {
-      logHistorySection.classList.remove('hidden');
-      towerSetupSection.classList.add('hidden');
-      dailyLogSection.classList.add('hidden');
-      await populateTowerDropdownFilter();
-      await loadLogs();
-    });
+  }
 
-    // Tower Setup
-    async function refreshTowerList() {
-      const towers = await getAllTowers();
-      towerList.innerHTML = '';
+  // Navigation button events
+  document.getElementById('navTowerSetup').onclick = () => showSection('towerSetupSection');
+  document.getElementById('navDailyLog').onclick = () => showSection('dailyLogSection');
+  document.getElementById('navLogHistory').onclick = () => {
+    showSection('logHistorySection');
+    loadLogHistory();
+  };
+
+  // IndexedDB setup
+  let db;
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('MaterialCycleDB', 1);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        db = request.result;
+        resolve(db);
+      };
+      request.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('towers')) {
+          db.createObjectStore('towers', { keyPath: 'id', autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains('logs')) {
+          const logsStore = db.createObjectStore('logs', { keyPath: 'id', autoIncrement: true });
+          logsStore.createIndex('towerId', 'towerId', { unique: false });
+          logsStore.createIndex('date', 'date', { unique: false });
+        }
+      };
+    });
+  }
+
+  // Add Tower
+  async function addTower(tower) {
+    const tx = db.transaction('towers', 'readwrite');
+    const store = tx.objectStore('towers');
+    await store.add(tower);
+    return tx.complete;
+  }
+
+  // Get all Towers
+  async function getAllTowers() {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('towers', 'readonly');
+      const store = tx.objectStore('towers');
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Add Log
+  async function addLog(log) {
+    const tx = db.transaction('logs', 'readwrite');
+    const store = tx.objectStore('logs');
+    await store.add(log);
+    return tx.complete;
+  }
+
+  // Get Logs with optional filters
+  async function getLogs(filter = {}) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('logs', 'readonly');
+      const store = tx.objectStore('logs');
+      const request = store.getAll();
+      request.onsuccess = () => {
+        let logs = request.result;
+        if (filter.towerId) {
+          logs = logs.filter(l => l.towerId == filter.towerId);
+        }
+        if (filter.fromDate) {
+          logs = logs.filter(l => l.date >= filter.fromDate);
+        }
+        if (filter.toDate) {
+          logs = logs.filter(l => l.date <= filter.toDate);
+        }
+        resolve(logs);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  // Populate tower dropdowns
+  async function populateTowerDropdowns() {
+    const towers = await getAllTowers();
+
+    const towerSelects = [document.getElementById('logTowerSelect'), document.getElementById('filterTowerSelect')];
+    towerSelects.forEach(select => {
+      select.innerHTML = '<option value="">-- Select Tower --</option>';
       towers.forEach(tower => {
-        const li = document.createElement('li');
-        li.textContent = `${tower.name || '(No name)'} [${tower.type}] - ${tower.location || ''}`;
-        towerList.appendChild(li);
+        const opt = document.createElement('option');
+        opt.value = tower.id;
+        opt.textContent = tower.name || `Tower #${tower.id}`;
+        select.appendChild(opt);
       });
-    }
+    });
 
-    towerForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      const tower = {
-        id: 'tower-' + Date.now(),
-        name: document.getElementById('towerName').value.trim(),
-        type: document.getElementById('towerType').value,
-        location: document.getElementById('towerLocation').value.trim(),
-        gps: {
-          lat: parseFloat(document.getElementById('towerLat').value) || null,
-          lng: parseFloat(document.getElementById('towerLng').value) || null
-        },
-        waterSource: document.getElementById('towerWaterSource').value,
-        createdAt: new Date().toISOString()
-      };
+    // Also update tower list in Tower Setup section
+    const towerList = document.getElementById('towerList');
+    towerList.innerHTML = '';
+    towers.forEach(tower => {
+      const li = document.createElement('li');
+      li.textContent = `${tower.name} (${tower.type}) - ${tower.location || 'No location'}`;
+      towerList.appendChild(li);
+    });
+  }
+
+  // Handle Tower Setup form submit
+  document.getElementById('towerSetupForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const tower = {
+      name: document.getElementById('towerName').value.trim(),
+      type: document.getElementById('towerType').value,
+      location: document.getElementById('towerLocation').value.trim(),
+      gps: {
+        lat: parseFloat(document.getElementById('towerLat').value) || null,
+        lng: parseFloat(document.getElementById('towerLng').value) || null
+      },
+      waterSource: document.getElementById('towerWaterSource').value,
+      createdAt: new Date().toISOString()
+    };
+    try {
       await addTower(tower);
-      await refreshTowerList();
       alert('Tower saved!');
-      towerForm.reset();
-    });
-
-    // Daily Log Entry helpers
-    async function populateTowerDropdown() {
-      const towers = await getAllTowers();
-      towerSelect.innerHTML = '<option value="">Select Tower</option>';
-      towers.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t.id;
-        opt.textContent = t.name || '(No name)';
-        towerSelect.appendChild(opt);
-      });
+      e.target.reset();
+      await populateTowerDropdowns();
+    } catch(err) {
+      alert('Error saving tower: ' + err);
     }
+  });
 
-    // Filter dropdown for Log History
-    async function populateTowerDropdownFilter() {
-      const towers = await getAllTowers();
-      filterTower.innerHTML = '<option value="">All Towers</option>';
-      towers.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t.id;
-        opt.textContent = t.name || '(No name)';
-        filterTower.appendChild(opt);
-      });
-    }
-
-    // Calculate sunlight hours on time change or manual override
-    function calculateSunlightHours() {
-      if (sunlightHoursManual.value) {
-        sunlightHours.value = sunlightHoursManual.value;
-        return;
-      }
-      if (sunlightStartTime.value && sunlightEndTime.value) {
-        const start = sunlightStartTime.value.split(':');
-        const end = sunlightEndTime.value.split(':');
-        let diff = (parseInt(end[0], 10) * 60 + parseInt(end[1], 10)) - (parseInt(start[0], 10) * 60 + parseInt(start[1], 10));
-        if (diff < 0) diff += 24 * 60; // handle overnight
-        sunlightHours.value = (diff / 60).toFixed(2);
-      } else {
-        sunlightHours.value = '';
-      }
-    }
-    sunlightStartTime.addEventListener('change', calculateSunlightHours);
-    sunlightEndTime.addEventListener('change', calculateSunlightHours);
-    sunlightHoursManual.addEventListener('input', calculateSunlightHours);
-
-    // Helpers for photos
-    async function fileToBase64(file) {
-      if (!file) return '';
-      return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Save Daily Log
-    dailyLogForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      if (!towerSelect.value) {
-        alert('Please select a Tower.');
-        return;
-      }
-      const beforePhotoFile = document.getElementById('photoBefore').files[0];
-      const afterPhotoFile = document.getElementById('photoAfter').files[0];
-      const sunlightStartPhotoFile = document.getElementById('photoSunlightStart').files[0];
-      const sunlightEndPhotoFile = document.getElementById('photoSunlightEnd').files[0];
-
-      const logEntry = {
-        id: 'log-' + Date.now(),
-        towerId: towerSelect.value,
-        date: document.getElementById('logDate').value,
-        photos: {
-          before: await fileToBase64(beforePhotoFile),
-          after: await fileToBase64(afterPhotoFile),
-          sunlightStart: await fileToBase64(sunlightStartPhotoFile),
-          sunlightEnd: await fileToBase64(sunlightEndPhotoFile)
-        },
-        sunlight: {
-          startTime: sunlightStartTime.value || null,
-          endTime: sunlightEndTime.value || null,
-          hours: Number(sunlightHours.value) || 0,
-          exposureType: document.getElementById('exposureType').value,
-          autoEstimate: sunlightHoursManual.value === '' // true if no manual override
-        },
-        water: {
-          waterLevel: Number(document.getElementById('waterLevel').value) || 0,
-          addedToday: Number(document.getElementById('waterAdded').value) || 0,
-          sourceUsed: document.getElementById('waterSource').value,
-          overflow: document.getElementById('overflow').value.trim(),
-          rainfallObserved: document.getElementById('rainfallObserved').value,
-          notes: document.getElementById('waterNotes').value.trim()
-        },
-        distillation: {
-          rawInputType: document.getElementById('rawInputType').value.trim(),
-          inputVolume: Number(document.getElementById('inputVolume').value) || 0,
-          distilledVolume: Number(document.getElementById('distilledVolume').value) || 0
-        },
-        biomass: {
-          harvested: Number(document.getElementById('harvested').value) || 0,
-          type: document.getElementById('biomassType').value.trim(),
-          wasteRemoved: Number(document.getElementById('wasteRemoved').value) || 0,
-          newAdditions: document.getElementById('newAdditions').value.split(',').map(s => s.trim()).filter(s => s)
-        },
-        maintenance: {
-          issue: document.getElementById('maintenanceIssue').value.trim(),
-          action: document.getElementById('maintenanceAction').value.trim(),
-          nextReminder: document.getElementById('nextReminder').value || null
-        },
-        aquatic: {
-          fishStatus: document.getElementById('fishStatus').value.trim(),
-          clarity: document.getElementById('waterClarity').value.trim(),
-          odor: document.getElementById('odor').value.trim()
-        },
-        weather: {
-          summary: document.getElementById('weatherSummary').value.trim(),
-          temp: Number(document.getElementById('weatherTemp').value) || 0,
-          rainfall: Number(document.getElementById('weatherRainfall').value) || 0,
-          pulledFromLocation: document.getElementById('weatherPulled').value === 'true'
-        },
-        timestamp: new Date().toISOString()
-      };
-
-      await addLog(logEntry);
+  // Handle Daily Log form submit
+  document.getElementById('dailyLogForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const log = {
+      towerId: parseInt(document.getElementById('logTowerSelect').value),
+      date: document.getElementById('logDate').value,
+      sunlightHours: parseFloat(document.getElementById('sunlightHours').value) || 0,
+      waterAdded: parseFloat(document.getElementById('waterAdded').value) || 0,
+      biomassHarvested: parseFloat(document.getElementById('biomassHarvested').value) || 0,
+      timestamp: new Date().toISOString()
+    };
+    try {
+      await addLog(log);
       alert('Daily log saved!');
-      resetDailyLogForm();
+      e.target.reset();
+      document.getElementById('logDate').valueAsDate = new Date();
+      document.getElementById('logTowerSelect').value = '';
+    } catch(err) {
+      alert('Error saving log: ' + err);
+    }
+  });
+
+  // Load and show logs in Log History table
+  async function loadLogHistory() {
+    const towerId = document.getElementById('filterTowerSelect').value;
+    const fromDate = document.getElementById('filterFromDate').value;
+    const toDate = document.getElementById('filterToDate').value;
+
+    const logs = await getLogs({ towerId, fromDate, toDate });
+
+    // Get all towers once for lookup
+    const towers = await getAllTowers();
+    const towerMap = {};
+    towers.forEach(t => towerMap[t.id] = t);
+
+    const tbody = document.getElementById('logTableBody');
+    tbody.innerHTML = '';
+
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No logs found.</td></tr>';
+      return;
+    }
+
+    logs.forEach(log => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${log.date}</td>
+        <td>${towerMap[log.towerId] ? towerMap[log.towerId].name : 'Unknown'}</td>
+        <td>${log.sunlightHours}</td>
+        <td>${log.waterAdded}</td>
+        <td>${log.biomassHarvested}</td>
+        <td>
+          <button class="btn-small" data-id="${log.id}" data-action="edit">Edit</button>
+          <button class="btn-small" data-id="${log.id}" data-action="delete">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
     });
 
-    // Reset Daily Log form
-    function resetDailyLogForm() {
-      dailyLogForm.reset();
-      sunlightHours.value = '';
-      sunlightHoursManual.value = '';
-      document.getElementById('logDate').valueAsDate = new Date();
-      clearPhotoPreviews();
-    }
-
-    // Clear photo previews
-    function clearPhotoPreviews() {
-      ['previewBefore', 'previewAfter', 'previewSunlightStart', 'previewSunlightEnd'].forEach(id => {
-        const img = document.getElementById(id);
-        img.src = '';
-        img.style.display = 'none';
-      });
-    }
-
-    // Show photo previews on file select
-    ['photoBefore', 'photoAfter', 'photoSunlightStart', 'photoSunlightEnd'].forEach(id => {
-      const input = document.getElementById(id);
-      const previewId = 'preview' + id.charAt(5).toUpperCase() + id.slice(6);
-      const img = document.getElementById(previewId);
-      input.addEventListener('change', e => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = ev => {
-            img.src = ev.target.result;
-            img.style.display = 'block';
-          };
-          reader.readAsDataURL(file);
-        } else {
-          img.src = '';
-          img.style.display = 'none';
+    // Attach event listeners to buttons
+    tbody.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const id = Number(e.target.dataset.id);
+        const action = e.target.dataset.action;
+        if (action === 'delete') {
+          if (confirm('Delete this log?')) {
+            deleteLog(id).then(() => loadLogHistory());
+          }
+        } else if (action === 'edit') {
+          loadLogForEdit(id);
         }
       });
     });
+  }
 
-    // Load logs with optional filtering
-    async function loadLogs() {
-      let logs = await getAllLogs();
-      const towers = await getAllTowers();
+  // Delete Log
+  async function deleteLog(id) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('logs', 'readwrite');
+      const store = tx.objectStore('logs');
+      const req = store.delete(id);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  }
 
-      // Filter by tower
-      if (filterTower.value) {
-        logs = logs.filter(log => log.towerId === filterTower.value);
-      }
-      // Filter by date range
-      if (filterFromDate.value) {
-        logs = logs.filter(log => log.date >= filterFromDate.value);
-      }
-      if (filterToDate.value) {
-        logs = logs.filter(log => log.date <= filterToDate.value);
-      }
+  // Load Log into Daily Log form for editing
+  async function loadLogForEdit(id) {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('logs', 'readonly');
+      const store = tx.objectStore('logs');
+      const req = store.get(id);
+      req.onsuccess = () => {
+        const log = req.result;
+        if (!log) {
+          alert('Log not found');
+          reject('Not found');
+          return;
+        }
+        showSection('dailyLogSection');
+        document.getElementById('logTowerSelect').value = log.towerId;
+        document.getElementById('logDate').value = log.date;
+        document.getElementById('sunlightHours').value = log.sunlightHours;
+        document.getElementById('waterAdded').value = log.waterAdded;
+        document.getElementById('biomassHarvested').value = log.biomassHarvested;
 
-      // Sort logs descending by date
-      logs.sort((a, b) => b.date.localeCompare(a.date));
+        // Change form to update mode
+        const form = document.getElementById('dailyLogForm');
+        form.dataset.editingId = id;
+        form.querySelector('button[type="submit"]').textContent = 'Update Daily Log';
+        resolve();
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
 
-      // Render table rows
-      logTableBody.innerHTML = '';
-      logs.forEach(log => {
-        const tower = towers.find(t => t.id === log.towerId);
-        const tr = document.createElement('tr');
-        tr.classList.add('border-b');
-
-        tr.innerHTML = `
-          <td class="px-4 py-2">${log.date}</td>
-          <td class="px-4 py-2">${tower ? tower.name : '(Unknown Tower)'}</td>
-          <td class="px-4 py-2">${log.sunlight.hours.toFixed(2)}</td>
-          <td class="px-4 py-2">${log.water.addedToday}</td>
-          <td class="px-4 py-2">${log.biomass.harvested}</td>
-          <td class="px-4 py-2 space-x-2">
-            <button data-id="${log.id}" class="viewLogBtn bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">View</button>
-            <button data-id="${log.id}" class="editLogBtn bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">Edit</button>
-            <button data-id="${log.id}" class="deleteLogBtn bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Delete</button>
-          </td>
-        `;
-        logTableBody.appendChild(tr);
-      });
-
-      // Attach event listeners
-      document.querySelectorAll('.deleteLogBtn').forEach(btn => {
-        btn.addEventListener('click', async e => {
-          const id = e.target.getAttribute('data-id');
-          if (confirm('Delete this log?')) {
-            await deleteLog(id);
-            await loadLogs();
-          }
-        });
-      });
-
-      document.querySelectorAll('.viewLogBtn').forEach(btn => {
-        btn.addEventListener('click', async e => {
-          const id = e.target.getAttribute('data-id');
-          const logs = await getAllLogs();
-          const log = logs.find(l => l.id === id);
-          if (!log) {
-            alert('Log not found.');
-            return;
-          }
-          alert(JSON.stringify(log, null, 2));
-        });
-      });
-
-      document.querySelectorAll('.editLogBtn').forEach(btn => {
-        btn.addEventListener('click', async e => {
-          const id = e.target.getAttribute('data-id');
-          const logs = await getAllLogs();
-          const log = logs.find(l => l.id === id);
-          if (!log) {
-            alert('Log not found.');
-            return;
-          }
-          // Switch to Daily Log section
-          dailyLogSection.classList.remove('hidden');
-          towerSetupSection.classList.add('hidden');
-          logHistorySection.classList.add('hidden');
-
-          // Populate form with log data
-          await populateTowerDropdown();
-          towerSelect.value = log.towerId;
-          document.getElementById('logDate').value = log.date;
-
-          // Photos - No easy way to populate file inputs programmatically, so skip
-
-          sunlightStartTime.value = log.sunlight.startTime || '';
-          sunlightEndTime.value = log.sunlight.endTime || '';
-          sunlightHours.value = log.sunlight.hours.toFixed(2);
-          sunlightHoursManual.value = log.sunlight.autoEstimate ? '' : sunlightHours.value;
-          document.getElementById('exposureType').value = log.sunlight.exposureType;
-
-          document.getElementById('waterLevel').value = log.water.waterLevel;
-          document.getElementById('waterAdded').value = log.water.addedToday;
-          document.getElementById('waterSource').value = log.water.sourceUsed;
-          document.getElementById('overflow').value = log.water.overflow;
-          document.getElementById('rainfallObserved').value = log.water.rainfallObserved;
-          document.getElementById('waterNotes').value = log.water.notes;
-
-          document.getElementById('rawInputType').value = log.distillation.rawInputType;
-          document.getElementById('inputVolume').value = log.distillation.inputVolume;
-          document.getElementById('distilledVolume').value = log.distillation.distilledVolume;
-
-          document.getElementById('harvested').value = log.biomass.harvested;
-          document.getElementById('biomassType').value = log.biomass.type;
-          document.getElementById('wasteRemoved').value = log.biomass.wasteRemoved;
-          document.getElementById('newAdditions').value = log.biomass.newAdditions.join(', ');
-
-          document.getElementById('maintenanceIssue').value = log.maintenance.issue;
-          document.getElementById('maintenanceAction').value = log.maintenance.action;
-          document.getElementById('nextReminder').value = log.maintenance.nextReminder || '';
-
-          document.getElementById('fishStatus').value = log.aquatic.fishStatus;
-          document.getElementById('waterClarity').value = log.aquatic.clarity;
-          document.getElementById('odor').value = log.aquatic.odor;
-
-          document.getElementById('weatherSummary').value = log.weather.summary;
-          document.getElementById('weatherTemp').value = log.weather.temp;
-          document.getElementById('weatherRainfall').value = log.weather.rainfall;
-          document.getElementById('weatherPulled').value = log.weather.pulledFromLocation ? 'true' : 'false';
-
-          // Remove previous save handler and add new one for update
-          dailyLogForm.removeEventListener('submit', dailyLogSaveHandler);
-          dailyLogForm.addEventListener('submit', async function updateHandler(ev) {
-            ev.preventDefault();
-            // Update existing log
-            const updatedLog = {...log}; // copy
-            updatedLog.towerId = towerSelect.value;
-            updatedLog.date = document.getElementById('logDate').value;
-
-            updatedLog.sunlight.startTime = sunlightStartTime.value || null;
-            updatedLog.sunlight.endTime = sunlightEndTime.value || null;
-            updatedLog.sunlight.hours = Number(sunlightHours.value) || 0;
-            updatedLog.sunlight.exposureType = document.getElementById('exposureType').value;
-            updatedLog.sunlight.autoEstimate = sunlightHoursManual.value === '';
-
-            updatedLog.water.waterLevel = Number(document.getElementById('waterLevel').value) || 0;
-            updatedLog.water.addedToday = Number(document.getElementById('waterAdded').value) || 0;
-            updatedLog.water.sourceUsed = document.getElementById('waterSource').value;
-            updatedLog.water.overflow = document.getElementById('overflow').value.trim();
-            updatedLog.water.rainfallObserved = document.getElementById('rainfallObserved').value;
-            updatedLog.water.notes = document.getElementById('waterNotes').value.trim();
-
-            updatedLog.distillation.rawInputType = document.getElementById('rawInputType').value.trim();
-            updatedLog.distillation.inputVolume = Number(document.getElementById('inputVolume').value) || 0;
-            updatedLog.distillation.distilledVolume = Number(document.getElementById('distilledVolume').value) || 0;
-
-            updatedLog.biomass.harvested = Number(document.getElementById('harvested').value) || 0;
-            updatedLog.biomass.type = document.getElementById('biomassType').value.trim();
-            updatedLog.biomass.wasteRemoved = Number(document.getElementById('wasteRemoved').value) || 0;
-            updatedLog.biomass.newAdditions = document.getElementById('newAdditions').value.split(',').map(s => s.trim()).filter(s => s);
-
-            updatedLog.maintenance.issue = document.getElementById('maintenanceIssue').value.trim();
-            updatedLog.maintenance.action = document.getElementById('maintenanceAction').value.trim();
-            updatedLog.maintenance.nextReminder = document.getElementById('nextReminder').value || null;
-
-            updatedLog.aquatic.fishStatus = document.getElementById('fishStatus').value.trim();
-            updatedLog.aquatic.clarity = document.getElementById('waterClarity').value.trim();
-            updatedLog.aquatic.odor = document.getElementById('odor').value.trim();
-
-            updatedLog.weather.summary = document.getElementById('weatherSummary').value.trim();
-            updatedLog.weather.temp = Number(document.getElementById('weatherTemp').value) || 0;
-            updatedLog.weather.rainfall = Number(document.getElementById('weatherRainfall').value) || 0;
-            updatedLog.weather.pulledFromLocation = document.getElementById('weatherPulled').value === 'true';
-
-            await addLog(updatedLog);
-            alert('Log updated!');
-            dailyLogForm.removeEventListener('submit', updateHandler);
-            dailyLogForm.addEventListener('submit', dailyLogSaveHandler);
-            resetDailyLogForm();
-            showDailyLogBtn.click();
-            await loadLogs();
-          });
-        });
-      });
-    }
-
-    // Original dailyLogForm submit handler to save new logs
-    async function dailyLogSaveHandler(e) {
-      e.preventDefault();
-      if (!towerSelect.value) {
-        alert('Please select a Tower.');
-        return;
-      }
-      const beforePhotoFile = document.getElementById('photoBefore').files[0];
-      const afterPhotoFile = document.getElementById('photoAfter').files[0];
-      const sunlightStartPhotoFile = document.getElementById('photoSunlightStart').files[0];
-      const sunlightEndPhotoFile = document.getElementById('photoSunlightEnd').files[0];
-
-      const logEntry = {
-        id: 'log-' + Date.now(),
-        towerId: towerSelect.value,
+  // Handle Daily Log update on submit if editing
+  document.getElementById('dailyLogForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form = e.target;
+    const editingId = form.dataset.editingId;
+    if (editingId) {
+      // Update existing log
+      const updatedLog = {
+        id: Number(editingId),
+        towerId: parseInt(document.getElementById('logTowerSelect').value),
         date: document.getElementById('logDate').value,
-        photos: {
-          before: await fileToBase64(beforePhotoFile),
-          after: await fileToBase64(afterPhotoFile),
-          sunlightStart: await fileToBase64(sunlightStartPhotoFile),
-          sunlightEnd: await fileToBase64(sunlightEndPhotoFile)
-        },
-        sunlight: {
-          startTime: sunlightStartTime.value || null,
-          endTime: sunlightEndTime.value || null,
-          hours: Number(sunlightHours.value) || 0,
-          exposureType: document.getElementById('exposureType').value,
-          autoEstimate: sunlightHoursManual.value === '' // true if no manual override
-        },
-        water: {
-          waterLevel: Number(document.getElementById('waterLevel').value) || 0,
-          addedToday: Number(document.getElementById('waterAdded').value) || 0,
-          sourceUsed: document.getElementById('waterSource').value,
-          overflow: document.getElementById('overflow').value.trim(),
-          rainfallObserved: document.getElementById('rainfallObserved').value,
-          notes: document.getElementById('waterNotes').value.trim()
-        },
-        distillation: {
-          rawInputType: document.getElementById('rawInputType').value.trim(),
-          inputVolume: Number(document.getElementById('inputVolume').value) || 0,
-          distilledVolume: Number(document.getElementById('distilledVolume').value) || 0
-        },
-        biomass: {
-          harvested: Number(document.getElementById('harvested').value) || 0,
-          type: document.getElementById('biomassType').value.trim(),
-          wasteRemoved: Number(document.getElementById('wasteRemoved').value) || 0,
-          newAdditions: document.getElementById('newAdditions').value.split(',').map(s => s.trim()).filter(s => s)
-        },
-        maintenance: {
-          issue: document.getElementById('maintenanceIssue').value.trim(),
-          action: document.getElementById('maintenanceAction').value.trim(),
-          nextReminder: document.getElementById('nextReminder').value || null
-        },
-        aquatic: {
-          fishStatus: document.getElementById('fishStatus').value.trim(),
-          clarity: document.getElementById('waterClarity').value.trim(),
-          odor: document.getElementById('odor').value.trim()
-        },
-        weather: {
-          summary: document.getElementById('weatherSummary').value.trim(),
-          temp: Number(document.getElementById('weatherTemp').value) || 0,
-          rainfall: Number(document.getElementById('weatherRainfall').value) || 0,
-          pulledFromLocation: document.getElementById('weatherPulled').value === 'true'
-        },
+        sunlightHours: parseFloat(document.getElementById('sunlightHours').value) || 0,
+        waterAdded: parseFloat(document.getElementById('waterAdded').value) || 0,
+        biomassHarvested: parseFloat(document.getElementById('biomassHarvested').value) || 0,
         timestamp: new Date().toISOString()
       };
-
-      await addLog(logEntry);
-      alert('Daily log saved!');
-      resetDailyLogForm();
+      try {
+        const tx = db.transaction('logs', 'readwrite');
+        const store = tx.objectStore('logs');
+        store.put(updatedLog);
+        await tx.complete;
+        alert('Daily log updated!');
+        form.reset();
+        form.removeAttribute('data-editing-id');
+        form.querySelector('button[type="submit"]').textContent = 'Save Daily Log';
+        showSection('logHistorySection');
+        loadLogHistory();
+      } catch(err) {
+        alert('Error updating log: ' + err);
+      }
+    } else {
+      // New log submission
+      const log = {
+        towerId: parseInt(document.getElementById('logTowerSelect').value),
+        date: document.getElementById('logDate').value,
+        sunlightHours: parseFloat(document.getElementById('sunlightHours').value) || 0,
+        waterAdded: parseFloat(document.getElementById('waterAdded').value) || 0,
+        biomassHarvested: parseFloat(document.getElementById('biomassHarvested').value) || 0,
+        timestamp: new Date().toISOString()
+      };
+      try {
+        await addLog(log);
+        alert('Daily log saved!');
+        form.reset();
+        document.getElementById('logDate').valueAsDate = new Date();
+        document.getElementById('logTowerSelect').value = '';
+      } catch(err) {
+        alert('Error saving log: ' + err);
+      }
     }
+  });
 
-    // Attach original submit handler
-    dailyLogForm.addEventListener('submit', dailyLogSaveHandler);
+  // Init app
+  (async () => {
+    await openDB();
+    await populateTowerDropdowns();
+    document.getElementById('logDate').valueAsDate = new Date();
+  })();
+</script>
 
-    // Initialize
-    (async () => {
-      await refreshTowerList();
-      document.getElementById('logDate').valueAsDate = new Date();
-    })();
-  </script>
 </body>
 </html>
