@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MaterialCycle Monitor</title>
   <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -26,7 +26,7 @@
         <option value="greywater">Greywater</option>
         <option value="tap">Tap</option>
       </select>
-      <button onclick="saveTower()" class="p-2 bg-green-600 text-white rounded col-span-1 md:col-span-2">Save Tower</button>
+      <button id="saveTowerBtn" class="p-2 bg-green-600 text-white rounded col-span-1 md:col-span-2">Save Tower</button>
     </div>
     <ul id="towerList" class="mt-4 list-disc list-inside text-sm text-gray-700"></ul>
   </section>
@@ -48,63 +48,72 @@
         <option value="Artificial Light">Artificial Light</option>
         <option value="No Sun">No Sun</option>
       </select>
-      <button onclick="saveLog()" class="p-2 bg-blue-600 text-white rounded col-span-1 md:col-span-2">Save Log</button>
+
+      <!-- Water Section -->
+      <div class="col-span-1 md:col-span-2 border-t pt-4 mt-4">
+        <h3 class="font-semibold mb-2">💧 Water</h3>
+        <input id="waterLevel" type="number" step="0.1" placeholder="Water level in system (L)" class="p-2 border rounded w-full mb-2"/>
+        <input id="waterAdded" type="number" step="0.1" placeholder="Water added today (L)" class="p-2 border rounded w-full mb-2"/>
+        <select id="waterSourceUsed" class="p-2 border rounded w-full mb-2">
+          <option value="">Select water source</option>
+          <option value="rainwater">Rainwater</option>
+          <option value="greywater">Greywater</option>
+          <option value="tap">Tap</option>
+          <option value="recycled">Recycled</option>
+        </select>
+        <input id="waterOverflow" type="text" placeholder="Overflow observed? (None, Light, Heavy...)" class="p-2 border rounded w-full mb-2"/>
+        <input id="rainfallObserved" type="text" placeholder="Rainfall today? (Yes, No, etc.)" class="p-2 border rounded w-full mb-2"/>
+        <textarea id="waterNotes" rows="2" placeholder="Notes on water clarity, smell, etc." class="p-2 border rounded w-full"></textarea>
+      </div>
+
+      <button id="saveLogBtn" class="p-2 bg-blue-600 text-white rounded col-span-1 md:col-span-2">Save Log</button>
     </div>
   </section>
 
-  <script>
-    const dbPromise = idb.openDB("MaterialCycleDB", 1, {
-      upgrade(db) {
-        db.createObjectStore("towers", { keyPath: "id" });
-        db.createObjectStore("logs", { keyPath: "id" });
-      }
-    });
-
-    async function saveTower() {
-      const db = await dbPromise;
-      const tower = {
-        id: "tower-" + Date.now(),
-        name: document.getElementById("towerName").value,
-        type: document.getElementById("towerType").value,
-        location: document.getElementById("towerLocation").value,
-        waterSource: document.getElementById("towerWaterSource").value,
-        createdAt: new Date().toISOString()
-      };
-      await db.put("towers", tower);
-      document.querySelectorAll('#towerName, #towerLocation').forEach(input => input.value = "");
-      refreshTowerList();
-      refreshTowerDropdown();
-    }
+  <script type="module">
+    import { addTower, fetchTowers } from './js/towers.js';
+    import { addLog } from './js/logs.js';
 
     async function refreshTowerList() {
-      const db = await dbPromise;
-      const allTowers = await db.getAll("towers");
-      const list = document.getElementById("towerList");
-      list.innerHTML = "";
-      allTowers.forEach(t => {
-        const li = document.createElement("li");
+      const towers = await fetchTowers();
+      const list = document.getElementById('towerList');
+      list.innerHTML = '';
+      towers.forEach(t => {
+        const li = document.createElement('li');
         li.textContent = `${t.name} (${t.type}) - ${t.location}`;
         list.appendChild(li);
       });
     }
 
     async function refreshTowerDropdown() {
-      const db = await dbPromise;
-      const towers = await db.getAll("towers");
-      const dropdown = document.getElementById("logTowerSelect");
+      const towers = await fetchTowers();
+      const dropdown = document.getElementById('logTowerSelect');
       dropdown.innerHTML = '<option value="">Select Tower</option>';
       towers.forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t.id;
-        opt.textContent = t.name || t.location;
-        dropdown.appendChild(opt);
+        const option = document.createElement('option');
+        option.value = t.id;
+        option.textContent = t.name || t.location;
+        dropdown.appendChild(option);
       });
     }
 
-    async function saveLog() {
-      const db = await dbPromise;
-      const start = document.getElementById("sunlightStart").value;
-      const end = document.getElementById("sunlightEnd").value;
+    document.getElementById('saveTowerBtn').addEventListener('click', async () => {
+      const tower = {
+        name: document.getElementById('towerName').value,
+        type: document.getElementById('towerType').value,
+        location: document.getElementById('towerLocation').value,
+        waterSource: document.getElementById('towerWaterSource').value,
+      };
+      await addTower(tower);
+      document.getElementById('towerName').value = '';
+      document.getElementById('towerLocation').value = '';
+      await refreshTowerList();
+      await refreshTowerDropdown();
+    });
+
+    document.getElementById('saveLogBtn').addEventListener('click', async () => {
+      const start = document.getElementById('sunlightStart').value;
+      const end = document.getElementById('sunlightEnd').value;
       let hours = 0;
       if (start && end) {
         const startTime = new Date(`1970-01-01T${start}`);
@@ -113,29 +122,43 @@
       }
 
       const log = {
-        id: "log-" + Date.now(),
-        towerId: document.getElementById("logTowerSelect").value,
-        date: document.getElementById("logDate").value,
+        towerId: document.getElementById('logTowerSelect').value,
+        date: document.getElementById('logDate').value,
         sunlight: {
           startTime: start,
           endTime: end,
           hours: parseFloat(hours.toFixed(2)),
-          exposureType: document.getElementById("sunlightExposure").value,
+          exposureType: document.getElementById('sunlightExposure').value,
           autoEstimate: false
         },
-        timestamp: new Date().toISOString()
+        water: {
+          waterLevel: parseFloat(document.getElementById('waterLevel').value) || null,
+          addedToday: parseFloat(document.getElementById('waterAdded').value) || null,
+          sourceUsed: document.getElementById('waterSourceUsed').value,
+          overflow: document.getElementById('waterOverflow').value,
+          rainfallObserved: document.getElementById('rainfallObserved').value,
+          notes: document.getElementById('waterNotes').value
+        }
       };
 
-      await db.put("logs", log);
-      alert("Log saved ✅");
-      document.getElementById("logDate").value = "";
-      document.getElementById("sunlightStart").value = "";
-      document.getElementById("sunlightEnd").value = "";
-    }
+      await addLog(log);
+      alert('Log saved ✅');
 
-    window.addEventListener("DOMContentLoaded", () => {
-      refreshTowerList();
-      refreshTowerDropdown();
+      // Reset form
+      document.getElementById('logDate').value = '';
+      document.getElementById('sunlightStart').value = '';
+      document.getElementById('sunlightEnd').value = '';
+      document.getElementById('waterLevel').value = '';
+      document.getElementById('waterAdded').value = '';
+      document.getElementById('waterSourceUsed').value = '';
+      document.getElementById('waterOverflow').value = '';
+      document.getElementById('rainfallObserved').value = '';
+      document.getElementById('waterNotes').value = '';
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await refreshTowerList();
+      await refreshTowerDropdown();
     });
   </script>
 </body>
