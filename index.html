@@ -2,18 +2,89 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Test MaterialCycle</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MaterialCycle Monitor - Tower Setup Test</title>
 <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
+  input, select, button { margin: 5px 0; padding: 8px; width: 100%; }
+  ul { padding-left: 20px; }
+</style>
 </head>
 <body>
-  <h1>MaterialCycle Monitor Test</h1>
-  <button id="testBtn">Test Button</button>
+  <h1>MaterialCycle Monitor - Tower Setup Test</h1>
+
+  <label for="towerName">Tower Name</label>
+  <input id="towerName" type="text" placeholder="Enter tower name" />
+
+  <label for="towerType">Tower Type</label>
+  <select id="towerType">
+    <option value="plant">Plant</option>
+    <option value="distillation">Distillation</option>
+    <option value="hybrid">Hybrid</option>
+  </select>
+
+  <label for="towerLocation">Location</label>
+  <input id="towerLocation" type="text" placeholder="Enter location" />
+
+  <label for="towerWaterSource">Water Source</label>
+  <select id="towerWaterSource">
+    <option value="rainwater">Rainwater</option>
+    <option value="tap">Tap</option>
+    <option value="greywater">Greywater</option>
+  </select>
+
+  <button id="saveTowerBtn">Save Tower</button>
+
+  <h2>Saved Towers</h2>
+  <ul id="towerList"></ul>
 
   <script type="module">
-    console.log("Script loaded");
-    document.getElementById("testBtn").addEventListener("click", () => {
-      alert("Button clicked");
+    import { saveTower, getAllTowers } from './js/db.js';
+
+    async function refreshTowerList() {
+      const towers = await getAllTowers();
+      const listEl = document.getElementById('towerList');
+      listEl.innerHTML = '';
+      if (towers.length === 0) {
+        listEl.innerHTML = '<li>No towers saved yet.</li>';
+        return;
+      }
+      towers.forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = `${t.name} (${t.type}) - ${t.location} [${t.waterSource}]`;
+        listEl.appendChild(li);
+      });
+    }
+
+    document.getElementById('saveTowerBtn').addEventListener('click', async () => {
+      const tower = {
+        id: 'tower-' + Date.now(),
+        name: document.getElementById('towerName').value.trim(),
+        type: document.getElementById('towerType').value,
+        location: document.getElementById('towerLocation').value.trim(),
+        waterSource: document.getElementById('towerWaterSource').value,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!tower.name) {
+        alert('Please enter a tower name.');
+        return;
+      }
+
+      try {
+        await saveTower(tower);
+        alert('Tower saved!');
+        document.getElementById('towerName').value = '';
+        document.getElementById('towerLocation').value = '';
+        await refreshTowerList();
+      } catch (e) {
+        alert('Error saving tower: ' + e.message);
+      }
     });
+
+    // Initial load
+    refreshTowerList();
   </script>
 </body>
 </html>
