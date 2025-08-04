@@ -1,1 +1,393 @@
+<!-- dailyLog.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MaterialCycle Monitor - Daily Log Entry</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 p-6">
+  <h1 class="text-3xl font-bold mb-6">Daily Log Entry</h1>
+
+  <form id="dailyLogForm" class="space-y-4 max-w-3xl">
+    <!-- Select Tower -->
+    <label>
+      Tower:
+      <select id="towerSelect" required class="border p-2 w-full"></select>
+    </label>
+
+    <!-- Select Date -->
+    <label>
+      Date:
+      <input type="date" id="logDate" required class="border p-2 w-full" />
+    </label>
+
+    <!-- Photos Upload -->
+    <div>
+      <label>Before Photo:</label>
+      <input type="file" id="photoBefore" accept="image/*" />
+      <img id="previewBefore" class="mt-2 max-h-40" />
+    </div>
+
+    <div>
+      <label>After Photo:</label>
+      <input type="file" id="photoAfter" accept="image/*" />
+      <img id="previewAfter" class="mt-2 max-h-40" />
+    </div>
+
+    <div>
+      <label>Sunlight Start Photo:</label>
+      <input type="file" id="photoSunlightStart" accept="image/*" />
+      <img id="previewSunlightStart" class="mt-2 max-h-40" />
+    </div>
+
+    <div>
+      <label>Sunlight End Photo:</label>
+      <input type="file" id="photoSunlightEnd" accept="image/*" />
+      <img id="previewSunlightEnd" class="mt-2 max-h-40" />
+    </div>
+
+    <!-- Sunlight Hours -->
+    <label>
+      Sunlight Start Time:
+      <input type="time" id="sunlightStartTime" />
+    </label>
+
+    <label>
+      Sunlight End Time:
+      <input type="time" id="sunlightEndTime" />
+    </label>
+
+    <label>
+      Calculated Sunlight Hours:
+      <input type="number" id="sunlightHours" step="0.01" readonly class="bg-gray-200" />
+    </label>
+
+    <label>
+      Manual Override Sunlight Hours:
+      <input type="number" id="sunlightHoursManual" step="0.01" min="0" max="24" />
+    </label>
+
+    <label>
+      Exposure Type:
+      <select id="exposureType" class="border p-2 w-full">
+        <option>Full Sun</option>
+        <option>Partial Sun</option>
+        <option>Reflected</option>
+        <option>Artificial</option>
+        <option>No Sun</option>
+      </select>
+    </label>
+
+    <!-- Water Section -->
+    <fieldset class="border p-3">
+      <legend class="font-semibold">Water</legend>
+      <label>
+        Water Level (L):
+        <input type="number" id="waterLevel" step="0.1" min="0" />
+      </label>
+      <label>
+        Water Added Today (L):
+        <input type="number" id="waterAdded" step="0.1" min="0" />
+      </label>
+      <label>
+        Water Source:
+        <select id="waterSource" class="border p-2 w-full">
+          <option>Rainwater</option>
+          <option>Tap</option>
+          <option>Greywater</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label>
+        Overflow:
+        <input type="text" id="overflow" />
+      </label>
+      <label>
+        Rainfall Observed:
+        <select id="rainfallObserved" class="border p-2 w-full">
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </label>
+      <label>
+        Notes:
+        <textarea id="waterNotes" rows="2" class="border p-2 w-full"></textarea>
+      </label>
+    </fieldset>
+
+    <!-- Distillation Section -->
+    <fieldset class="border p-3">
+      <legend class="font-semibold">Distillation</legend>
+      <label>
+        Raw Input Type:
+        <input type="text" id="rawInputType" />
+      </label>
+      <label>
+        Input Volume (L):
+        <input type="number" id="inputVolume" step="0.1" min="0" />
+      </label>
+      <label>
+        Distilled Volume (L):
+        <input type="number" id="distilledVolume" step="0.1" min="0" />
+      </label>
+    </fieldset>
+
+    <!-- Biomass Section -->
+    <fieldset class="border p-3">
+      <legend class="font-semibold">Biomass</legend>
+      <label>
+        Harvested (g):
+        <input type="number" id="harvested" step="1" min="0" />
+      </label>
+      <label>
+        Type:
+        <input type="text" id="biomassType" />
+      </label>
+      <label>
+        Waste Removed (g):
+        <input type="number" id="wasteRemoved" step="1" min="0" />
+      </label>
+      <label>
+        New Additions (comma separated):
+        <input type="text" id="newAdditions" placeholder="e.g. compost, leaves" />
+      </label>
+    </fieldset>
+
+    <!-- Maintenance Section -->
+    <fieldset class="border p-3">
+      <legend class="font-semibold">Maintenance</legend>
+      <label>
+        Issue:
+        <input type="text" id="maintenanceIssue" />
+      </label>
+      <label>
+        Action Taken:
+        <input type="text" id="maintenanceAction" />
+      </label>
+      <label>
+        Next Reminder Date:
+        <input type="date" id="nextReminder" />
+      </label>
+    </fieldset>
+
+    <!-- Aquatic Section -->
+    <fieldset class="border p-3">
+      <legend class="font-semibold">Aquatic Life</legend>
+      <label>
+        Fish Status:
+        <input type="text" id="fishStatus" />
+      </label>
+      <label>
+        Water Clarity:
+        <input type="text" id="waterClarity" />
+      </label>
+      <label>
+        Odor:
+        <input type="text" id="odor" />
+      </label>
+    </fieldset>
+
+    <!-- Weather Section -->
+    <fieldset class="border p-3">
+      <legend class="font-semibold">Weather</legend>
+      <label>
+        Summary:
+        <input type="text" id="weatherSummary" />
+      </label>
+      <label>
+        Temperature (°C):
+        <input type="number" id="weatherTemp" step="0.1" />
+      </label>
+      <label>
+        Rainfall (mm):
+        <input type="number" id="weatherRainfall" step="0.1" />
+      </label>
+      <label>
+        Pulled From Location:
+        <select id="weatherPulled" class="border p-2 w-full">
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </label>
+    </fieldset>
+
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save Log</button>
+  </form>
+
+  <script type="module">
+    import { fetchTowers } from './js/towers.js';
+    import { addLogRecord } from './js/logs.js';
+
+    const towerSelect = document.getElementById('towerSelect');
+    const sunlightStartTime = document.getElementById('sunlightStartTime');
+    const sunlightEndTime = document.getElementById('sunlightEndTime');
+    const sunlightHours = document.getElementById('sunlightHours');
+    const sunlightHoursManual = document.getElementById('sunlightHoursManual');
+
+    // Load towers into dropdown
+    async function populateTowers() {
+      const towers = await fetchTowers();
+      towerSelect.innerHTML = '<option value="">-- Select Tower --</option>';
+      towers.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = `${t.name} (${t.type})`;
+        towerSelect.appendChild(opt);
+      });
+    }
+
+    // Calculate sunlight hours from start/end time
+    function calculateSunlightHours() {
+      if (!sunlightStartTime.value || !sunlightEndTime.value) {
+        sunlightHours.value = '';
+        return;
+      }
+      const start = sunlightStartTime.value.split(':').map(Number);
+      const end = sunlightEndTime.value.split(':').map(Number);
+      let diff = (end[0] + end[1] / 60) - (start[0] + start[1] / 60);
+      if (diff < 0) diff += 24; // handle past midnight
+      sunlightHours.value = diff.toFixed(2);
+    }
+
+    sunlightStartTime.addEventListener('change', () => {
+      calculateSunlightHours();
+    });
+    sunlightEndTime.addEventListener('change', () => {
+      calculateSunlightHours();
+    });
+
+    // If manual override entered, use it instead of calculated
+    sunlightHoursManual.addEventListener('input', () => {
+      if (sunlightHoursManual.value !== '') {
+        sunlightHours.value = sunlightHoursManual.value;
+      } else {
+        calculateSunlightHours();
+      }
+    });
+
+    // Convert image file to base64 data URL for storage
+    async function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) resolve(null);
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject('File read error');
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Preview uploaded image
+    function previewImage(inputElem, imgElem) {
+      const file = inputElem.files[0];
+      if (!file) {
+        imgElem.src = '';
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      imgElem.src = url;
+    }
+
+    document.getElementById('photoBefore').addEventListener('change', e => {
+      previewImage(e.target, document.getElementById('previewBefore'));
+    });
+    document.getElementById('photoAfter').addEventListener('change', e => {
+      previewImage(e.target, document.getElementById('previewAfter'));
+    });
+    document.getElementById('photoSunlightStart').addEventListener('change', e => {
+      previewImage(e.target, document.getElementById('previewSunlightStart'));
+    });
+    document.getElementById('photoSunlightEnd').addEventListener('change', e => {
+      previewImage(e.target, document.getElementById('previewSunlightEnd'));
+    });
+
+    document.getElementById('dailyLogForm').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      if (!towerSelect.value) {
+        alert('Please select a tower');
+        return;
+      }
+
+      const beforePhotoFile = document.getElementById('photoBefore').files[0];
+      const afterPhotoFile = document.getElementById('photoAfter').files[0];
+      const sunlightStartPhotoFile = document.getElementById('photoSunlightStart').files[0];
+      const sunlightEndPhotoFile = document.getElementById('photoSunlightEnd').files[0];
+
+      const logEntry = {
+        id: 'log-' + Date.now(),
+        towerId: towerSelect.value,
+        date: document.getElementById('logDate').value,
+        photos: {
+          before: await fileToBase64(beforePhotoFile),
+          after: await fileToBase64(afterPhotoFile),
+          sunlightStart: await fileToBase64(sunlightStartPhotoFile),
+          sunlightEnd: await fileToBase64(sunlightEndPhotoFile),
+        },
+        sunlight: {
+          startTime: sunlightStartTime.value || null,
+          endTime: sunlightEndTime.value || null,
+          hours: Number(sunlightHours.value) || 0,
+          exposureType: document.getElementById('exposureType').value,
+          autoEstimate: sunlightHoursManual.value === '' // true if no manual override
+        },
+        water: {
+          waterLevel: Number(document.getElementById('waterLevel').value) || 0,
+          addedToday: Number(document.getElementById('waterAdded').value) || 0,
+          sourceUsed: document.getElementById('waterSource').value,
+          overflow: document.getElementById('overflow').value.trim(),
+          rainfallObserved: document.getElementById('rainfallObserved').value,
+          notes: document.getElementById('waterNotes').value.trim()
+        },
+        distillation: {
+          rawInputType: document.getElementById('rawInputType').value.trim(),
+          inputVolume: Number(document.getElementById('inputVolume').value) || 0,
+          distilledVolume: Number(document.getElementById('distilledVolume').value) || 0
+        },
+        biomass: {
+          harvested: Number(document.getElementById('harvested').value) || 0,
+          type: document.getElementById('biomassType').value.trim(),
+          wasteRemoved: Number(document.getElementById('wasteRemoved').value) || 0,
+          newAdditions: document.getElementById('newAdditions').value.split(',').map(s => s.trim()).filter(s => s)
+        },
+        maintenance: {
+          issue: document.getElementById('maintenanceIssue').value.trim(),
+          action: document.getElementById('maintenanceAction').value.trim(),
+          nextReminder: document.getElementById('nextReminder').value || null
+        },
+        aquatic: {
+          fishStatus: document.getElementById('fishStatus').value.trim(),
+          clarity: document.getElementById('waterClarity').value.trim(),
+          odor: document.getElementById('odor').value.trim()
+        },
+        weather: {
+          summary: document.getElementById('weatherSummary').value.trim(),
+          temp: Number(document.getElementById('weatherTemp').value) || 0,
+          rainfall: Number(document.getElementById('weatherRainfall').value) || 0,
+          pulledFromLocation: document.getElementById('weatherPulled').value === 'true'
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        await addLogRecord(logEntry);
+        alert('Daily log saved!');
+        e.target.reset();
+        sunlightHours.value = '';
+        await populateTowers();
+      } catch (err) {
+        alert('Error saving log: ' + err.message);
+      }
+    });
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+      await populateTowers();
+      // Set default date to today
+      document.getElementById('logDate').valueAsDate = new Date();
+    });
+  </script>
+</body>
+</html>
 
