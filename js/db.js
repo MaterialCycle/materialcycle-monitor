@@ -5,7 +5,7 @@ const DB_VERSION = 1;
 const TOWER_STORE = 'towers';
 const LOG_STORE = 'logs';
 
-let dbPromise = openDB(DB_NAME, DB_VERSION, {
+const dbPromise = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
     if (!db.objectStoreNames.contains(TOWER_STORE)) {
       db.createObjectStore(TOWER_STORE, { keyPath: 'id' });
